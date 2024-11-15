@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const SignUp = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 to-slate-200 flex items-center justify-center">
+    <div className="min-h-screen  flex items-center justify-center">
       <div className="bg-white shadow-lg rounded-lg p-6 max-w-md w-full">
         <h1 className="text-4xl text-center font-bold text-slate-700 mb-6">
           Sign Up
