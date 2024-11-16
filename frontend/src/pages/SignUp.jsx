@@ -2,14 +2,15 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { useDispatch, useSelector } from "react-redux";
+import { signUpStart, signUpSuccess, signUpFailure } from "../store/slices/userSlice";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
@@ -36,15 +37,15 @@ const SignUp = () => {
       return;
     }
 
-    setLoading(true);
-    setError(null);
+    dispatch(signUpStart());
     try {
-      await axios.post("/api/auth/register", formData, {
+      const res = await axios.post("/api/auth/register", formData, {
         headers: {
           "Content-Type": "application/json",
         },
       });
 
+      dispatch(signUpSuccess(res.data));
       toast.success("Sign-up successful! Redirecting...", {
         position: "top-right",
         autoClose: 3000,
@@ -56,24 +57,19 @@ const SignUp = () => {
       });
 
       navigate("/signin");
-    } catch (error) {
-      setError(
-        error.response?.data?.message || "An unexpected error occurred."
-      );
-      toast.error(
-        error.response?.data?.message || "An unexpected error occurred.",
-        {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "colored",
-        }
-      );
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      const errorMessage =
+        err.response?.data?.message || "An unexpected error occurred.";
+      dispatch(signUpFailure(errorMessage));
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
     }
   };
 
