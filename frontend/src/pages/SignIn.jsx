@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { signInStart, signInSuccess, signInFailure } from "../store/slices/userSlice";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({});
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
@@ -34,7 +37,7 @@ const SignIn = () => {
       return;
     }
 
-    setLoading(true);
+    dispatch(signInStart());
     try {
       const res = await axios.post("/api/auth/login", formData, {
         headers: {
@@ -42,6 +45,10 @@ const SignIn = () => {
         },
       });
 
+      // Dispatch success action with user data
+      dispatch(signInSuccess(res.data));
+
+      // Show success toast
       toast.success("Sign-in successful! Redirecting...", {
         position: "top-right",
         autoClose: 3000,
@@ -52,23 +59,24 @@ const SignIn = () => {
         theme: "colored",
       });
 
-      
+      // Navigate to the home page
       navigate("/");
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || "An unexpected error occurred.",
-        {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "colored",
-        }
-      );
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      const errorMessage =
+        err.response?.data?.message || "An unexpected error occurred.";
+
+      dispatch(signInFailure(errorMessage));
+
+      // Show error toast
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
     }
   };
 
@@ -81,6 +89,7 @@ const SignIn = () => {
         <p className="text-center text-slate-500 mb-8">
           Welcome back! Please enter your details to log in.
         </p>
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
           <div>
             <input
