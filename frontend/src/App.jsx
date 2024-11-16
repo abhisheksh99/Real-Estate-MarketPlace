@@ -5,6 +5,8 @@ import {
   Route,
   BrowserRouter,
 } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import About from "./pages/About";
@@ -29,6 +31,7 @@ const App = () => {
         </main>
         <Footer />
       </div>
+      <ToastContainer />
     </BrowserRouter>
   );
 };
